@@ -13,7 +13,7 @@ def move(start, end):
 # assumes dest and temp are 0
 def cp(src, dest, temp): # dest = src
   return f"""
-    (cp {src} {dest} {temp}
+    (cp
       {move(0, src)} [
         {move(src, temp)} + {move(temp, dest)} + {move(dest, src)} - 
       ]
@@ -28,11 +28,12 @@ def zero(loc): # loc = 0
   return f'Z{move(0,loc)}[-]{move(loc,0)}Z '
 
 def const(loc, value): # loc = value
-  return f'C{move(0, loc)} {zero(0)} {"+"*value}C '
+  return f'C{move(0, loc)} {zero(0)} {"+"*value} {move(loc, 0)}C '
 
-def add(dest, src, temp): # dest = dest + src
+# 
+def add(dest, src, temp): # dest = (dest + src) % 256
   return f"""
-    (add {dest} {src} {temp}
+    (add 
       {zero(temp)}
       {move(0, src)} [
         {move(src, dest)} + {move(dest, temp)} + {move(temp, src)} -  
@@ -46,7 +47,7 @@ def add(dest, src, temp): # dest = dest + src
 
 def sub(dest, src, temp): # dest = dest - src
   return f"""
-    (sub {dest} {src} {temp}
+    (sub
       {zero(temp)}
       {move(0, src)} [
         {move(src, dest)} - {move(dest, temp)} + {move(temp, src)} - 
@@ -60,7 +61,7 @@ def sub(dest, src, temp): # dest = dest - src
 
 def mult(dest, src, temp1, temp2): # dest = dest * src
   return f"""
-    (mult {dest} {src} {temp1} {temp2}
+    (mult 
       {zero(temp1)} {zero(temp2)} # zero out our temps
       {move(0, dest)} [       # move dest to temp2
         {move(dest, temp2)} + 
@@ -78,26 +79,31 @@ def mult(dest, src, temp1, temp2): # dest = dest * src
         ]
         {move(temp1, temp2)} -  # remove one from dest
       ]
+      {move(temp2, 0)}
     )
   """
 
 
 def if_else(cond, true, false, temp0, temp1): # if (cond != 0) {true} else {false}
   return f"""
-    (if_else {cond} true false {temp0} {temp1}
+    (if_else 
       {zero(temp0)}{zero(temp1)}
       {cp(cond, temp1, temp0)}
       {move(0, temp0)} + 
       {move(temp0, temp1)} [
         (true
+          {move(temp1, 0)}
           {true}
+          {move(0, temp1)}
         )
         {move(temp1, temp0)} - 
         {move(temp0, temp1)} [-]
       ]
       {move(temp1, temp0)} [
         (false
+          {move(temp0, 0)}
           {false}
+          {move(0, temp0)}
         )
         -                      
       ]
@@ -105,17 +111,17 @@ def if_else(cond, true, false, temp0, temp1): # if (cond != 0) {true} else {fals
     )
   """
 
-# temp0 only needs to contain 0
-# it is zeroed out and used to stop a loop
-def if_true(cond, true, temp0): # if (cond) {true}
+# destroys cond
+def if_true(cond, true): # if (cond) {true}
   return f"""
-    (if_true true {temp0}
-      {zero(temp0)}
+    (if_true 
       {move(0, cond)} [
         (true
+          {move(cond, 0)}
           {true}
+          {move(0, cond)}
         )
-        {move(cond, temp0)}
+        [-]
       ]
       {move(cond, 0)}
     )
@@ -123,7 +129,7 @@ def if_true(cond, true, temp0): # if (cond) {true}
 
 def logical_not(cond, temp):
   return f"""
-    (logical_not {cond} {temp}
+    (logical_not
       {zero(temp)}
       {move(0,cond)} [                              
         {move(cond, temp)} + {move(temp, cond)} [-] 
@@ -138,8 +144,8 @@ def logical_not(cond, temp):
 # destroys cond
 def if_false(cond, false, temp): # if (cond == 0) {false}
   return f"""
-    (if_false {cond} false {temp}
+    (if_false
       {logical_not(cond, temp)}
-      {if_true(cond, false, temp)}
+      {if_true(cond, false)}
     )
   """

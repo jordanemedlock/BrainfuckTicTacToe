@@ -9,7 +9,6 @@ class Brainfuck():
     self.wait_time = wait_time
     self.num_ops = 0
 
-
   def split_by_token(self, l):
     for i, c in enumerate(l):
       if c in '[]':
@@ -57,20 +56,15 @@ class Brainfuck():
       elif c in '.,<>+-':
         self.run_once(c)
         time.sleep(self.wait_time)
-      else:
-        if self.verbose:
-          print(c, end='')
     
   def run_loop(self, loop):
     if self.verbose:
       self.print('[')
     while self.tape[self.head] != 0:
       time.sleep(self.wait_time)
+      self.run_list(loop)
       if self.verbose:
         self.print(']')
-      self.run_list(loop)
-    if self.verbose:
-      self.print(']')
     
 
   def run_once(self, c):
