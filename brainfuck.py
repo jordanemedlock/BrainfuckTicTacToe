@@ -40,9 +40,6 @@ class Brainfuck():
     start = time.time()
     
     program, _ = self.tokenize(input_string)
-    
-    if self.verbose:
-      print('running program: {}'.format(program))
 
     self.run_list(program)
     
