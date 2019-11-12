@@ -1,7 +1,4 @@
-try:
-  from brainfuck import Brainfuck
-except:
-  pass
+from brainfuck import Brainfuck
   
 def move(start, end):
   n = end - start

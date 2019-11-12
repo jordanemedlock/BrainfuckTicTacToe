@@ -1,8 +1,5 @@
-try:
-  from brainfuck import Brainfuck
-  from metabf import *
-except:
-  pass
+from brainfuck import Brainfuck
+from metabf import *
   
 
 def validate_row(row, ret, temp0, temp1, temp2, temp3):
@@ -11,7 +8,7 @@ def validate_row(row, ret, temp0, temp1, temp2, temp3):
   x2 = row * 3 + 2
 
   return f"""
-    (validate_row {row} {ret} {temp0} {temp1} {temp2} {temp3}
+    (validate_row
       {move(0,temp0)}[-]{move(temp0,temp1)}[-]{move(temp1,temp2)}[-]{move(temp2,temp3)}[-]{move(temp3,ret)}[-] # zero all these
       {cp(x0, temp0, temp1)}
       {sub(temp0, x1, temp1)}

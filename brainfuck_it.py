@@ -8,6 +8,13 @@ class Brainfuck():
     self.verbose = verbose
     self.wait_time = wait_time
 
+  def setup(self, program):
+    self.program = program
+    self.counter = 0
+    
+    self.build_brace_map()
+
+
   def build_brace_map(self):
     brace_stack = []
     self.bracemap = {}
