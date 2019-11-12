@@ -1,6 +1,6 @@
 import unittest
 from random import shuffle, sample, randint, randrange, choice
-from brainfuck import Brainfuck
+from brainfuck_it import Brainfuck
 import time
 
 
