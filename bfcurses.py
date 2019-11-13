@@ -1,9 +1,12 @@
 from random import randint
 from asciimatics.screen import Screen
+from asciimatics.scene import Scene
+from asciimatics.widgets import Frame, Widget, Layout, Divider, Button
 from brainfuck_it import Brainfuck
 # from metabf import *
 from tictactoe import validate_row
 import time
+import sys
 
 def print_program(screen, program, index, num_lines=20):
   for i, line in enumerate(program):
@@ -30,32 +33,102 @@ def print_program(screen, program, index, num_lines=20):
         colour = 0
       screen.print_at(c, i, j, bg=colour)
 
+class ProgramWidget(Widget):
+  def __init__(self, program, counter):
+    super(ProgramWidget, self).__init__('ProgramWidget', tab_stop=False)
+    self.program = program
+    self.counter = counter
+
+  def update(self, frame_no):
+    self.frame.canvas.print_at('blah blah blah', self._x, self._y)
+
+  def reset(self):
+    pass
+
+  def process_event(self, event):
+    pass
+
+  def required_height(self, offset, width):
+    return 20
+
+  @property
+  def value(self):
+    return None
+  
+
+class TapeWidget(Widget):
+  def __init__(self, tape, head):
+    super(TapeWidget, self).__init__('TapeWidget', tab_stop=False)
+    self.tape = tape
+    self.head = head
+
+  def update(self, frame_no):
+    pass
+
+  def reset(self):
+    pass
+
+  def process_event(self, event):
+    pass
+
+  def required_height(self, offset, width):
+    return 2
+
+  @property
+  def value(self):
+    return None
+
+
+class BFView(Frame):
+  def __init__(self, screen, bf):
+    super(BFView, self).__init__(screen, 
+                                 screen.height * 2 // 3,
+                                 screen.width * 2 // 3,
+                                 on_load=self.reload_program,
+                                 hover_focus=True,
+                                 can_scroll=False,
+                                 title="Brainfuck")
+
+    self.bf = bf
+
+    layout = Layout([100], fill_frame=True)
+    self.add_layout(layout)
+    self.program_widget = ProgramWidget(bf.program, bf.counter)
+    layout.add_widget(self.program_widget)
+    layout.add_widget(Divider())
+    self.tape_widget = TapeWidget(bf.tape, bf.head)
+    layout.add_widget(self.tape_widget)
+    layout.add_widget(Divider())
+    layout2 = Layout([1,1])
+    self.add_layout(layout2)
+    next_button = Button("Next", self.next)
+    layout2.add_widget(next_button, 0)
+    quit_button = Button("Exit", self.quit)
+    layout2.add_widget(quit_button, 1)
+    self.fix()
+
+  def reload_program(self):
+    pass
+
+  def next(self):
+    if self.bf.counter >= len(self.bf.program):
+      self.bf.step()
+    
+
+  def quit(self):
+    sys.exit(0)
 
 
 
-def main(screen):
 
-  tape = [0,0,0, 0,0,0, 0,0,0, 0,0,0,0,0]
+def main(screen, bf):
+  scenes = [
+    Scene([BFView(screen, bf)], -1, name="Main")
+  ]
 
-  program = validate_row(0, 9, 10, 11, 12, 13)
+  screen.play(scenes)
 
-  bf = Brainfuck(tape, 0, verbose=False)
-  bf.setup(program)
+bf = Brainfuck([0 for _ in range(20)], 0)
+bf.setup('+++>++>+ [-] < [-] < [-]')
 
-  lines = bf.program.split('\n')
-  while True:
-    print_program(screen, lines, bf.counter)
-
-
-    ev = screen.get_event()
-    if ev in (ord('Q'), ord('q')):
-      return
-    if ev in (ord('p'),ord('P')):
-      bf.step()
-
-
-    print('refreshing screen')
-    screen.refresh()
-
-
-Screen.wrapper(main)
+Screen.wrapper(main, arguments=[bf])
