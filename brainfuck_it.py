@@ -54,6 +54,7 @@ class Brainfuck():
       self.counter = self.bracemap[self.counter]
 
     self.counter += 1
+    
 
   def run(self, program):
     self.program = program

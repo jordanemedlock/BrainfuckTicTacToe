@@ -146,3 +146,9 @@ def if_false(cond, false, temp): # if (cond == 0) {false}
       {if_true(cond, false)}
     )
   """
+
+def div_mod(num, den, zero):
+  return f"""
+
+
+  """

@@ -10,6 +10,7 @@ def validate_row(row, ret, temp0, temp1, temp2, temp3):
   return f"""
     (validate_row
       {move(0,temp0)}[-]{move(temp0,temp1)}[-]{move(temp1,temp2)}[-]{move(temp2,temp3)}[-]{move(temp3,ret)}[-] # zero all these
+      {move(ret, 0)}
       {cp(x0, temp0, temp1)}
       {sub(temp0, x1, temp1)}
       {cp(x1, temp1, temp2)}
