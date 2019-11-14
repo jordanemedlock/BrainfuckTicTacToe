@@ -63,7 +63,15 @@ class TapeWidget(Widget):
     self.head = head
 
   def update(self, frame_no):
-    pass
+    for i, v in enumerate(self.tape):
+      if i == self.head:
+        colour = 1
+      else:
+        colour = 7
+      string = '{0:3d} '.format(v)
+      delta = len(string)
+      self.frame.canvas.print_at(string, self._x + delta * i, self._y+1, colour=colour)
+    
 
   def reset(self):
     pass
@@ -72,7 +80,7 @@ class TapeWidget(Widget):
     pass
 
   def required_height(self, offset, width):
-    return 2
+    return 3
 
   @property
   def value(self):
